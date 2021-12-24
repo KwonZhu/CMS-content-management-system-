@@ -1,4 +1,4 @@
-const Course = require('../models/Course');
+const Course = require('../models/course');
 
 async function getAllCourses(req, res) { //await前要加async
   //新项目写法：async await
@@ -27,13 +27,13 @@ function deleteCourseById(req, res) {
   
 }
 
-function createCourse(req, res) { 
+async function createCourse(req, res) { 
   //需要从body取数据
-  const { _id, name, description } = req.body;
+  const { code, description } = req.body;
   //validate data
 
   //创建一个新document
-  const course = new Course({ _id, name, description }); //Course是model(collection), course是document
+  const course = new Course({ _id: code, description }); //Course是model(collection), course是document
     //从body把field取出来，又原封不动地添加到创建新course
     //在updateCourse也会做同样的操作
     //原因:controller不需要req.body里所有的数据，只需要这个controller关心的数据。
