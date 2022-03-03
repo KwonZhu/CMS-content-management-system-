@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 exports.connectToDB = () => { //直接把整个尝试连接的过程封装起来后export
-  // .env 
+  // .env里 
   // DB_HOST=localhost
   // DB_PORT=27017
   // DB_DATABASE=CMS
@@ -15,7 +15,7 @@ exports.connectToDB = () => { //直接把整个尝试连接的过程封装起来
   });
   db.on('error', (error) => { //连接中途断开/连接失败
     console.log(`DB connection failed: ${error.message}`);
-    process.exit(1); //关闭当前server
+    process.exit(1); //api server无法和database连接，关闭当前server
     //3种关闭
       //正常关闭 -> 程序运行结束
       //非正常关闭 -> 没有预计到的错误
@@ -25,7 +25,7 @@ exports.connectToDB = () => { //直接把整个尝试连接的过程封装起来
       
     //通常会在process外面套一个监控process，它能查看process退出时的状态码来判定正常/非正常关闭
   });
-  db.on('disconnected', () => {
+  db.on('disconnected', () => { //很少会触发
     console.log('disconnected');
   });
   
