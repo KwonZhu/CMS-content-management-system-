@@ -1,6 +1,6 @@
 // const mongoose = require('mongoose');
-// const schema = new mongoose.Schema({}) //用mongoose创建schema
-// 做destruction
+// const schema = new mongoose.Schema({...}) //用mongoose创建schema
+// 做destructuring
 const { Schema, model } = require('mongoose');
 const schema = new Schema({
   // 传入一个object，定义这个document有哪些fields, field分别是什么类型
@@ -9,13 +9,13 @@ const schema = new Schema({
                   //使得_id存储的是course code，而不是Object类型的那一串10几个的字符
     uppercase: true //自动转换为大写
   },
-  // name: {
-  //   type: String,
-  //   required: true //必须要传name
-  // },
+  name: {
+    type: String,
+    required: true //必须要传name
+  },
   description: {
     type: String,
-    default: 'This is a description!!!' //当创建document没传description时
+    default: 'This is a description.' //当创建document没传description时
   }
 });
 
@@ -25,12 +25,14 @@ schema.virtual('code').get(function() { //注意，这里没有写箭头函数�
                                         //使得指向实际的document
   return this._id;
 });
+//下节课讲如何返回virtual的属性，virtual属性如何工作
 
 //把schema变成model并导出
 module.exports = model('Course', schema); //第1个参数：model的名字为Course，C大写
                                             //Course的用处: 
                                               //1. Course -> courses，数据库里的collection叫courses
                                               //2. 把Course的model注册到mongoose
-                                                //如果想在其他地方使用这个model，直接导入即可
-                                                //在mongoose里通过model的名字直接找到这个model
+                                                //如果想在其他地方使用这个model
+                                                  //直接导入course.js即可
+                                                  //或者在mongoose里通过model的名字直接找到这个model
                                           //第2个参数：model的schema是什么
