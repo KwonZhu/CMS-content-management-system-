@@ -32,6 +32,7 @@ async function deleteStudentById(req, res) {
     return res.sendStatus(404);
   }
   return res.sendStatus(204);
+  //return res.json(student);
 
 }
 

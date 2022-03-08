@@ -32,7 +32,8 @@ async function updateCourseById(req, res) {
   const course = await Course.findByIdAndUpdate(id, { name, description }, {new: true});
     //用id找到后，把要更新的name和description传入
     //{new: true} 表示返回回来的是更新后的course。如果没有，表示返回更新前的course
-  
+    //return the updated object
+
   if(!course) {
     return res.sendStatus(404);
   }
