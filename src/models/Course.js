@@ -7,7 +7,9 @@ const schema = new Schema({
   _id: {
     type: String, //把_id的Object类型改成String
                   //使得_id存储的是course code，而不是Object类型的那一串10几个的字符
-    uppercase: true //自动转换为大写
+    uppercase: true, //自动转换为大写
+    alias: 'code' //别名。不再用schema.virtual('code').get(function(){...}来直接return this._id
+                  //因为virtual有其他用处，譬如student里用virtual的full name来return拼接的first name和last name
   },
   name: {
     type: String,
@@ -16,16 +18,33 @@ const schema = new Schema({
   description: {
     type: String,
     default: 'This is a description.' //当创建document没传description时
+  },
+  __v: { //不返回__v
+    type: Number,
+    select: false //选取时，不做选取
   }
-});
+},{ 
+  //在返回里显示virtual field: code，还返回一个自带的field: id(不是上面的_id)
+  toJSON: {
+    virtuals: true
+  },
+  id: false, //如果只想要virtual field，不想显示id的话
+  timestamps: true //数据第一次存储和上一次更新的时间戳
+                   //如果想更新时，记录时间，那么在updateCourseById不能是Course.findByIdAndUpdate
+                   //而是，先像getCourseById里的Course.findById(id)那样，找到这个course，然后修改后用document.save()来保存修改
+}
+  //virtual field只存在于用mongoose取数据时，不存在数据库中
+  //用mongodb compass查看db里没有code和id
+);
 
 //让_id的值 = 传进来的course code的方法
 //在mongoose对这个schema创建虚拟field - code，code在获取值时，获取_id的值
+/*
 schema.virtual('code').get(function() { //注意，这里没有写箭头函数，而是anonymous function，因为使用了this，
                                         //使得指向实际的document
   return this._id;
 });
-//下节课讲如何返回virtual的属性，virtual属性如何工作
+*/
 
 //把schema变成model并导出
 module.exports = model('Course', schema); //第1个参数：model的名字为Course，C大写
