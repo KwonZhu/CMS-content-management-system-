@@ -1,14 +1,22 @@
 const { Schema, model } = require('mongoose');
 const schema = new Schema({
-  _id: { 
-    type: String
-  },
-  name: { 
+  firstName: { 
     type: String,
-    required: true
+    require: true,
+    trim: true, //delete extra spaces
+    minlength: 2
   },
-  course: {
-    type: String
-  }
+  lastName: { 
+    type: String,
+    require: true,
+    trim: true
+  },
+  email: { 
+    type: String,
+    require: true
+  },
+  // course: {
+  //   type: String
+  // }
 });
 module.exports = model('Student', schema);

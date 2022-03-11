@@ -16,8 +16,12 @@ async function getStudentById(req, res) {
 
 async function updateStudentById(req, res) {
   const { id } = req.params;
-  const { name, course } = req.body;
-  const student = await Student.findByIdAndUpdate(id, { name, course }, {new: true});
+  const { firstName, lastName, email } = req.body;
+  const student = await Student.findByIdAndUpdate(
+    id, 
+    { firstName, lastName, email }, 
+    {new: true}
+  );
   if (!student) {
     return res.sendStatus(404);
   }
@@ -37,10 +41,8 @@ async function deleteStudentById(req, res) {
 }
 
 async function createStudent(req, res) {
-  const { id, name, course } = req.body;
-
-
-  const student = new Student({ id, name, course });
+  const { firstName, lastName, email } = req.body;
+  const student = new Student({ firstName, lastName, email });
   await student.save();
   return res.status(201).json(student);
 }

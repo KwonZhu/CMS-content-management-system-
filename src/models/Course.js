@@ -13,13 +13,14 @@ const schema = new Schema({
   },
   name: {
     type: String,
-    required: true //必须要传name
+    require: true //必须要传name
   },
   description: {
     type: String,
     default: 'This is a description.' //当创建document没传description时
   },
   __v: { //不返回__v
+         //但是__v是存在db的field，用来防止在不同的server同时对同一个数据修改
     type: Number,
     select: false //选取时，不做选取
   }
@@ -29,9 +30,10 @@ const schema = new Schema({
     virtuals: true
   },
   id: false, //如果只想要virtual field，不想显示id的话
-  timestamps: true //数据第一次存储和上一次更新的时间戳
-                   //如果想更新时，记录时间，那么在updateCourseById不能是Course.findByIdAndUpdate
-                   //而是，先像getCourseById里的Course.findById(id)那样，找到这个course，然后修改后用document.save()来保存修改
+  timestamps: true //当business logic需要用到时间戳时添加这个field
+                   //记录createdAt和updatedAt
+                   //如果想更新updatedAt，那么在updateCourseById不能是Course.findByIdAndUpdate
+                   //而是，先像getCourseById里的Course.findById(id)，找到这个id的course，然后修改后，最后用course.save()来保存修改
 }
   //virtual field只存在于用mongoose取数据时，不存在数据库中
   //用mongodb compass查看db里没有code和id

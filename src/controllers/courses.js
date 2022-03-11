@@ -29,10 +29,18 @@ async function updateCourseById(req, res) {
   const { name, description } = req.body; //需要检测传来的req.body是否为null
                                           //否则可能会出现field更新后变成null
                                           //null的field，不更新
-  const course = await Course.findByIdAndUpdate(id, { name, description }, {new: true});
+  const course = await Course.findByIdAndUpdate(
+    id, 
+    { name, description }, 
+    {new: true}
+  );
     //用id找到后，把要更新的name和description传入
     //{new: true} 表示返回回来的是更新后的course。如果没有，表示返回更新前的course
     //return the updated object
+
+  //方法2:
+  //更新除了上面这样操作，还能先做Course.findById(id)，找到document后对特定的field更新，最后document.save()
+  //用document.save()来利用mongoose提供的hooks去更新某些field，譬如updatedAt
 
   if(!course) {
     return res.sendStatus(404);
