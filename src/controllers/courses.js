@@ -1,4 +1,5 @@
 const Course = require('../models/course');
+const Joi = require('joi');
 
 async function getAllCourses(req, res) { //await前要加async
   //新项目写法：async await
@@ -17,7 +18,7 @@ async function getAllCourses(req, res) { //await前要加async
 
 async function getCourseById(req, res) {
   const { id } = req.params;
-  const course = await Course.findById(id);
+  const course = await Course.findById(id).exec();
   if(!course) {
     return res.sendStatus(404);
   }
@@ -33,7 +34,7 @@ async function updateCourseById(req, res) {
     id, 
     { name, description }, 
     {new: true}
-  );
+  ).exec();
     //用id找到后，把要更新的name和description传入
     //{new: true} 表示返回回来的是更新后的course。如果没有，表示返回更新前的course
     //return the updated object
@@ -50,7 +51,7 @@ async function updateCourseById(req, res) {
 
 async function deleteCourseById(req, res) {
   const { id } = req.params;
-  const course = await Course.findByIdAndDelete(id);//类似于findByIdAndUpdate，只是不需要id之外的参数
+  const course = await Course.findByIdAndDelete(id).exec();//类似于findByIdAndUpdate，只是不需要id之外的参数
     //返回被删除id的course
 
   if(!course) {
@@ -65,8 +66,28 @@ async function deleteCourseById(req, res) {
 
 async function createCourse(req, res) { 
   //需要从body取数据
-  const { code, name, description } = req.body;
+  //const { code, name, description } = req.body;
+  //这一步被validate data时await这一行代替了
+
   //validate data
+  const schema = Joi.object({ //定义一个Joi schema来对数据做规则定义
+    code: Joi.string()
+      .regex(/^[a-zA-Z0-9]+$/)
+      .required(), //简单的regex，^代表开始，+代表多个，$代表结束
+    name: Joi.string().min(2).max(10).required(),
+    description: Joi.string()
+  })
+  const { code, name, description } = await schema.validateAsync(req.body, { //尽量用异步验证validateAsync
+    allowUnknown: true, //允许接收不存在的数据。接收req.body里传来的不存在Joi schema里的数据
+                        //默认是false，如果传unknown的过来，直接报错
+
+    stripUnknown: true //虽然接收，但删除Joi schema里不存在的数据
+                      //譬如price没在schema里定义，接收，但删除
+  });
+  //const schema = Joi.object({...})一般不会写在controller里
+  //会单独写一个schema。而且验证规则Joi.string().min(2).max(10).required()也会单独提出来 => 保证代码可复用
+  //const stringValidator = Joi.string().min(2).max(10).required();
+  //name : stringValidator;
 
   //创建一个新document
   const course = new Course({ _id: code, name, description }); //Course是model(collection), course是document
@@ -75,6 +96,7 @@ async function createCourse(req, res) {
     //原因:controller不需要req.body里所有的数据，只需要这个controller关心的数据。
     //而且validate data时也是需要从req.body里取数据的，所以精确地取就是了
     //不建议写const course = new Course(req.body)，因为这样能篡改Course这个model里的其他field，譬如fee从1000改成0
+    //只取code, name, description，不把req.body直接传给mongoose model，否则price会被篡改
 
   await course.save(); //通过调用save()，帮助存到MongoDB，具体是存到哪个数据库(database server里有很多databases)的哪个collection由schema定义 
                        //save()没有.exec()

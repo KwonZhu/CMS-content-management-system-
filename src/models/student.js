@@ -22,16 +22,6 @@ const schema = new Schema({
         return !Joi.string().email().validate(email).error;
         //Jio.string().email().validate()返回一个object，object.error有值，则不为undefined，即校验失败
         //没有值，undefined，校验成功
-
-        /*
-        上面一行代码<=>
-        const validation = Joi.string().email().validate(email);
-        const {error} = validation;
-        if (error) {
-          return false;
-        }
-        return true;
-        */
       },
       msg: 'Invalid email format' //validator不通过时返回的信息
     }
