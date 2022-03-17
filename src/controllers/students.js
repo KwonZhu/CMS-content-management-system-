@@ -43,7 +43,8 @@ async function deleteStudentById(req, res) {
 async function createStudent(req, res) {
   const { firstName, lastName, email } = req.body;
   const student = new Student({ firstName, lastName, email });
-  await student.save(); //打开try-catch的话，这行要comment掉
+  await student.save(); //打开try-catch的话，这行要comment掉，且return res.status(201).json(student)要放到最后
+  return res.status(201).json(student);
   //以下是3种抓取错误的方式
   /*
   将async await中不符合student.js里schema验证的错误信息捉取且返回到postman上
@@ -72,11 +73,30 @@ async function createStudent(req, res) {
   });  
   */
 
-  //对于任何一个async await的地方(上面5个functions)，都需要使用try-catch
+  /*
+  对于任何一个async await的地方(上面5个route handler)，都需要使用try-catch捉取错误
   //这个.save()可被替换成.findByIdAndDelete(), .findByIdAndUpdate(), .findById(), .find()
-  //=>这样很繁琐
 
-  return res.status(201).json(student);
+  //=>这样很繁琐
+  //在导入models/student后写一个helper function把route handler包裹起来
+  function tryCatch(routeHandler) { //把tryCatch的调用放到routes/students里
+                                    //即router.get('/', tryCatch(getAllStudents));
+                                    //对每一个route handler都包裹一个tryCatch
+    return (req, res, next) => {  //从router里把req, res, next传给try-catch包裹起来的route handler
+      try {
+        routerHandler(req, res, next);
+      } catch (e) { //一旦routeHandler在async await里出现错误就能捉取，传给error handler
+        next(e);
+      }
+    }
+  }
+  //这样做不用在每个route handler写try-catch
+
+  //=> 还是繁琐，借助npm package: express-async-errors
+  //作用：改动express router的内在逻辑，自动把try-catch包裹在router，把错误传给error handler
+  //不是很popular的package，且很久没做更新维护，但使用没有问题。只支持express 4，express 5自带express-async-errors功能，不再需要导入它和处理async await
+  //使用方法：安装express-async-errors，在app.js导入。自此，不再需要在有async await的地方手动写try-catch
+  */
 }
 
 module.exports = {
