@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
 const router = require('./routes');
+const errorHandler = require('./middleware/errorHandler');
 const { connectToDB } = require('./utils/db');
 const logger = require('./utils/logger');
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(helmet());
 
 app.use(express.json());
 app.use('/api', router);
+app.use(errorHandler);
 
 connectToDB(); //在listen之前连接MongoDB server
 

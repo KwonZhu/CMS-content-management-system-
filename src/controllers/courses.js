@@ -65,10 +65,6 @@ async function deleteCourseById(req, res) {
 }
 
 async function createCourse(req, res) { 
-  //需要从body取数据
-  //const { code, name, description } = req.body;
-  //这一步被validate data时await这一行代替了
-
   //validate data
   const schema = Joi.object({ //定义一个Joi schema来对数据做规则定义
     code: Joi.string()
@@ -80,9 +76,10 @@ async function createCourse(req, res) {
   const { code, name, description } = await schema.validateAsync(req.body, { //尽量用异步验证validateAsync
     allowUnknown: true, //允许接收不存在的数据。接收req.body里传来的不存在Joi schema里的数据
                         //默认是false，如果传unknown的过来，直接报错
-
-    stripUnknown: true //虽然接收，但删除Joi schema里不存在的数据
+    stripUnknown: true, //虽然接收，但删除Joi schema里不存在的数据
                       //譬如price没在schema里定义，接收，但删除
+    abortEarly: false //过早中止的默认是true，false即检测完所有数据再返回
+    
   });
   //const schema = Joi.object({...})一般不会写在controller里
   //会单独写一个schema。而且验证规则Joi.string().min(2).max(10).required()也会单独提出来 => 保证代码可复用
