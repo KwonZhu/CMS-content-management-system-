@@ -8,9 +8,13 @@ async function getAllStudents(req, res) {
 
 async function getStudentById(req, res) {
   const { id } = req.params;
+
   //const student = await Student.findById(id).exec();
   const student = await Student.findById(id).populate('courses').exec(); //把关联的courses array里的course所有的field都取出来
   //const student = await Student.findById(id).populate('courses', 'name').exec(); //只要course里的name field
+  //business logic需要populate才做，不需要就Student.findById(id).exec()即可
+  //通常不在getAllStudents里，因为populate需要到相应的collection里找数据，payload大
+
   if (!student) {
     return res.sendStatus(404);
   }
@@ -38,6 +42,20 @@ async function deleteStudentById(req, res) {
   if (!student) {
     return res.sendStatus(404);
   }
+
+  //当delete student时，需要到Course把相应的reference也删除
+  await Course.updateMany( //类似于mongodb的db.collection.updateMany({},{})
+                           //第一个参数为匹配条件，第二个参数为如何更新
+    //匹配条件写法1: (写法2在courses.js)
+    {
+      students: student._id //在Course里找到students field里包含这个student_id的course
+    }, 
+    {
+      $pull: { //$xxx是operator，$pull是update operator
+        students: student._id //在符合的course中，把这个student从students field删除
+      }
+    }
+  );
   return res.sendStatus(204);
   //return res.json(student);
 
@@ -113,9 +131,9 @@ async function addStudentToCourse(req, res) {
   }
   //4. check student already enrolled
   //5. add student to course
-  student.courses.addToSet(code); //set集合里，不添加重复的值，譬如数字，字符串等，而不是检测object
+  student.courses.addToSet(course._id); //set集合里，不添加重复的值，譬如数字，字符串等，而不能检测有无重复object
                                        //addToSet表示把student里的courses数组变成一个set，来确保没有重复项
-  course.students.addToSet(id);
+  course.students.addToSet(student._id);
   await student.save(); //添加完保存
   await course.save();
   //4. 针对不同的business logic还可以是: if (student.courses.includes(course._id))
@@ -133,8 +151,8 @@ async function removeStudentFromCourse(req, res) {
   }
   //4. check student already enrolled
   //5. remove student from course
-  student.courses.pull(code); //pull也保证唯一性
-  course.students.pull(id);
+  student.courses.pull(course._id); //pull也保证唯一性
+  course.students.pull(student._id);
 
   await student.save();
   await course.save();

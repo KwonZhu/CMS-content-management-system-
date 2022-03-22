@@ -1,5 +1,6 @@
 const Course = require('../models/course');
 const Joi = require('joi');
+const Student = require('../models/student');
 
 async function getAllCourses(req, res) { //await前要加async
   //新项目写法：async await
@@ -58,6 +59,22 @@ async function deleteCourseById(req, res) {
   if(!course) {
     return res.sendStatus(404);
   }
+
+  //当delete course时，需要到Student把相应的reference也删除
+  await Student.updateMany( //类似于mongodb的db.collection.updateMany({},{})
+                            //第一个参数为匹配条件，第二个参数为如何更新
+    //匹配条件写法2: 
+    {
+      _id: { $in: course.students } //找student_id在course.students里的student
+                                    //$in是query operator
+    },
+    {
+      $pull: { //$xxx是operator，$pull是update operator
+        courses: course._id //在符合的student中，把这个course从courses field删除
+      }
+    }
+  );
+
   //删除成功的返回方式1: 
   return res.sendStatus(204); //返回no content，代表删除成功
   //删除成功的返回方式2:
