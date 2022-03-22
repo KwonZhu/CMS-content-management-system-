@@ -26,8 +26,9 @@ const schema = new Schema({
       msg: 'Invalid email format' //validator不通过时返回的信息
     }
   },
-  // course: {
-  //   type: String
-  // }
+  courses: [{ //courses is a array
+    type: String, //type要和reference的collection的_id type一一对应，即course的_id type: String
+    ref: 'Course' //ref: 告诉mongoose，relationship是跟哪个collection。大写C是注册到mongoose的Course model
+  }]
 });
 module.exports = model('Student', schema);

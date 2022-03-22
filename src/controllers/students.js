@@ -1,4 +1,5 @@
 const Student = require('../models/student');
+const Course = require('../models/course');
 
 async function getAllStudents(req, res) {
   const students = await Student.find().exec();
@@ -7,7 +8,9 @@ async function getAllStudents(req, res) {
 
 async function getStudentById(req, res) {
   const { id } = req.params;
-  const student = await Student.findById(id).exec();
+  //const student = await Student.findById(id).exec();
+  const student = await Student.findById(id).populate('courses').exec(); //把关联的courses array里的course所有的field都取出来
+  //const student = await Student.findById(id).populate('courses', 'name').exec(); //只要course里的name field
   if (!student) {
     return res.sendStatus(404);
   }
@@ -98,11 +101,52 @@ async function createStudent(req, res) {
   //使用方法：安装express-async-errors，在app.js导入。自此，不再需要在有async await的地方手动写try-catch
   */
 }
+async function addStudentToCourse(req, res) {
+  //1. get student id, course code
+  const { id, code } = req.params;
+  //2. find student, course
+  const student = await Student.findById(id).exec();
+  const course = await Course.findById(code).exec();
+  //3. check student, course exist
+  if (!student || !course) {
+    return res.sendStatus(404);
+  }
+  //4. check student already enrolled
+  //5. add student to course
+  student.courses.addToSet(code); //set集合里，不添加重复的值，譬如数字，字符串等，而不是检测object
+                                       //addToSet表示把student里的courses数组变成一个set，来确保没有重复项
+  course.students.addToSet(id);
+  await student.save(); //添加完保存
+  await course.save();
+  //4. 针对不同的business logic还可以是: if (student.courses.includes(course._id))
+
+  //6. return updated student or 200/201
+  return res.json(student); //or return res.status(201); or return res.status(201).json(student);
+}
+
+async function removeStudentFromCourse(req, res) {
+  const { id, code } = req.params;
+  const student = await Student.findById(id).exec();
+  const course = await Course.findById(code).exec();
+  if (!student || !course) {
+    return res.sendStatus(404);
+  }
+  //4. check student already enrolled
+  //5. remove student from course
+  student.courses.pull(code); //pull也保证唯一性
+  course.students.pull(id);
+
+  await student.save();
+  await course.save();
+  return res.json(student); //or return res.sendStatus(204)
+}
 
 module.exports = {
   getAllStudents,
   getStudentById,
   updateStudentById,
   deleteStudentById,
-  createStudent
+  createStudent,
+  addStudentToCourse,
+  removeStudentFromCourse
 }

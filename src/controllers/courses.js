@@ -8,7 +8,7 @@ async function getAllCourses(req, res) { //await前要加async
       //语法类似于在mongodb shell里的db.collections.find()
     //.exec()表示：代码执行到此时，查询操作(query)在这里就中止，因为query可以像promise那样chain起来
       //因此，如果query结束的话就加上.exec()，代表后面的代码没有query了，也防止后面的代码改动这个query
-
+  
   //旧项目写法: promise
   //Course.findById().then().catch()
   //更旧的写法: call back
@@ -19,6 +19,7 @@ async function getAllCourses(req, res) { //await前要加async
 async function getCourseById(req, res) {
   const { id } = req.params;
   const course = await Course.findById(id).exec();
+  //const course = await Course.findById(id).populate('students').exec();
   if(!course) {
     return res.sendStatus(404);
   }

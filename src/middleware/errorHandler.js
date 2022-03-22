@@ -3,11 +3,15 @@ module.exports = (error, req, res, next) => {//跟普通middleware不同的是�
   //还可以通过npm run debug，设置breakpoint，发一个请求，鼠标点在error上，看它有哪些属性
   if (error.name === 'ValidationError') {
     if (process.env.NODE_ENV === 'production') {
+      /*object manipulation操纵。把对象转换成相应的格式进行展示
       const { details } = error; //details是一个array，当多个数据有错时，会有多个object，每个object有自己的message
       const errMsg = details.map((i) => ({
         message: i.message //在postman生成{"message": "\"name\" length must be less than or equal to 10 characters long"}
+                           //和{"message": "\"code\" with value \"COMP3 122222\" fails to match the required pattern: /^[a-zA-Z0-9]+$/"}
         }));
       return res.status(400).json(errMsg);
+      */
+      return res.status(400).json(error.message);
     } else {
       return res.status(400).json(error);
     }

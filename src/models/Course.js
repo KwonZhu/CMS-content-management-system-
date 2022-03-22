@@ -19,6 +19,10 @@ const schema = new Schema({
     type: String,
     default: 'This is a description.' //当创建document没传description时
   },
+  students: [{
+    type: Schema.Types.ObjectId, //student _id的type没有手动改过，所以是ObjectId。ObjectId是mongodb独有的类型，所以mongoose支持这个类型
+    ref: 'Student'
+  }],
   __v: { //不返回__v
          //但是__v是存在db的field，用来防止在不同的server同时对同一个数据修改
     type: Number,
