@@ -48,7 +48,7 @@ async function deleteStudentById(req, res) {
                            //第一个参数为匹配条件，第二个参数为如何更新
     //匹配条件写法1: (写法2在courses.js)
     {
-      students: student._id //在Course里找到students field里包含这个student_id的course
+      students: student._id //在Course的students field里，找到包含这个student_id的所有course
     }, 
     {
       $pull: { //$xxx是operator，$pull是update operator
@@ -58,7 +58,6 @@ async function deleteStudentById(req, res) {
   );
   return res.sendStatus(204);
   //return res.json(student);
-
 }
 
 async function createStudent(req, res) {

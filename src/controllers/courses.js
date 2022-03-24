@@ -63,11 +63,17 @@ async function deleteCourseById(req, res) {
   //当delete course时，需要到Student把相应的reference也删除
   await Student.updateMany( //类似于mongodb的db.collection.updateMany({},{})
                             //第一个参数为匹配条件，第二个参数为如何更新
-    //匹配条件写法2: 
+    //匹配条件写法2: (没那么好理解)
     {
-      _id: { $in: course.students } //找student_id在course.students里的student
+      _id: { $in: course.students } //在Student里找到这个course的students field里所有student
                                     //$in是query operator
     },
+    /*
+    匹配条件写法1:
+    { 
+      courses: course._id //在Student的courses field里，找到包含这个course_id的所有student
+    },
+    */
     {
       $pull: { //$xxx是operator，$pull是update operator
         courses: course._id //在符合的student中，把这个course从courses field删除
@@ -79,7 +85,6 @@ async function deleteCourseById(req, res) {
   return res.sendStatus(204); //返回no content，代表删除成功
   //删除成功的返回方式2:
   // return res.json(course); //前端想知道哪个被删除了
-
 }
 
 async function createCourse(req, res) { 
@@ -90,7 +95,7 @@ async function createCourse(req, res) {
       .required(), //简单的regex，^代表开始，+代表多个，$代表结束
     name: Joi.string().min(2).max(10).required(),
     description: Joi.string()
-  })
+  });
   const { code, name, description } = await schema.validateAsync(req.body, { //尽量用异步验证validateAsync
     allowUnknown: true, //允许接收不存在的数据。接收req.body里传来的不存在Joi schema里的数据
                         //默认是false，如果传unknown的过来，直接报错
@@ -103,6 +108,12 @@ async function createCourse(req, res) {
   //会单独写一个schema。而且验证规则Joi.string().min(2).max(10).required()也会单独提出来 => 保证代码可复用
   //const stringValidator = Joi.string().min(2).max(10).required();
   //name : stringValidator;
+
+  //由于_id从ObjectId改成String的code(譬如两个course的_id都是COMP1)，可能会造成_id duplicate的处理
+  const existCourse = await Course.findById(code).exec(); //从await schema.validateAsync(req.body)取到的是code，还不是_id
+  if (existCourse) {
+    return res.sendStatus(409); //conflict
+  }
 
   //创建一个新document
   const course = new Course({ _id: code, name, description }); //Course是model(collection), course是document
