@@ -135,4 +135,4 @@ module.exports = {
   updateCourseById,
   deleteCourseById,
   createCourse
-}
+};

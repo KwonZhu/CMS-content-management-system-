@@ -166,4 +166,4 @@ module.exports = {
   createStudent,
   addStudentToCourse,
   removeStudentFromCourse
-}
+};
