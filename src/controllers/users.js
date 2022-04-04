@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const { generateToken } = require('../utils/jwt');
 
 async function addUser(req, res) {
   const { username, password } = req.body;
@@ -19,7 +20,8 @@ async function addUser(req, res) {
   }
   const user = new User({ username, password });
   await user.save();
-  return res.sendStatus(201)
+  const token = generateToken({ id: user._id });//创建成功后，生成token，把id写进payload
+  return res.status(201).json({ token, username });
 }
 
 module.exports = { addUser };
