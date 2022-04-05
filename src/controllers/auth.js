@@ -19,10 +19,12 @@ async function login(req, res) {
     }
   }
   */
-  if (user.password !== password) {
+  //if (user.password !== password) { 出于密码加密原因，在models/user.js有了schema.methods.validatePassword()就不再使用这行
+  const validPassword = await user.validatePassword(password); //如果password一样，会返回false
+  if (!validPassword) { 
     return res.status(401).json('Invalid username or password');
   }
-  const token = generateToken({ id: user._id });
+  const token = generateToken({ id: user._id });//user登录成功后，生成token，把id写进payload
   return res.json({ token, username }); //<=>return res.status(200).json(token)，返回200可以省略不写
 }
 
