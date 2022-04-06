@@ -19,7 +19,7 @@ async function login(req, res) {
     }
   }
   */
-  //if (user.password !== password) { 出于密码加密原因，在models/user.js有了schema.methods.validatePassword()就不再使用这行
+  //if (user.password !== password) { 出于对密码加密原因，在models/user.js有了schema.methods.validatePassword()就不再使用这行
   const validPassword = await user.validatePassword(password); //如果password一样，会返回false
   if (!validPassword) { 
     return res.status(401).json('Invalid username or password');
