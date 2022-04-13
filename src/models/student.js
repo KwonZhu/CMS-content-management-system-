@@ -4,18 +4,18 @@ const Joi = require('joi'); //导入的变量uppercase/lowercase，查看该pack
 const schema = new Schema({
   firstName: { 
     type: String,
-    require: true,
+    required: true,
     trim: true, //delete extra spaces
     minlength: 2,
   },
   lastName: { 
     type: String,
-    require: true,
+    required: true,
     trim: true
   },
   email: { 
     type: String,
-    require: true,
+    required: true,
     validate: {
       validator: (email) => { //调用一个callback function来检测数据
                               //接收用户传来的field作为参数

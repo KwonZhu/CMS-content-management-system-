@@ -3,7 +3,7 @@ const { createLogger, format, transports } = require('winston');
 const path = require('path');
 
 const logger = createLogger({
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug', //test时，可设置当.NODE_ENV为test时，不显示info log(POST /api/students 201 80.135 ms - 115) =>自己研究
   format: format.combine( //format.combine对多个不同格式组合
     format.colorize(), //console输出会有颜色，更易读
     format.label({ label: path.basename(module.parent.filename)}), 

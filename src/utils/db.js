@@ -39,4 +39,8 @@ exports.connectToDB = () => { //直接把整个尝试连接的过程封装起来
     useNewUrlParser: true, //这两个参数用来解决命令行的warning信息
     useUnifiedTopology: true
   },); 
-}
+};
+
+exports.disconnectDB = async () => { //用来解决test的warning，即test结束后api server和mongodb server仍然连接
+  return mongoose.disconnect(); //disconnect是promise，所以需要async
+};

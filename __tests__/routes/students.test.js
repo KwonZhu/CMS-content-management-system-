@@ -5,8 +5,9 @@ test('1+1===2', () => { //test关键字代表这是个测试用例，参数1：'
 */
 const supertest = require('supertest'); //用于测试每条endpoint
 const app = require('../../src/app');
-const { connectToDB } = require('../../src/utils/db');
+const { connectToDB, disconnectDB } = require('../../src/utils/db');
 const Student = require('../../src/models/student');
+const { disconnect } = require('mongoose');
 
 const request = supertest(app); //把api server传给supertest，生成一个client
 
@@ -16,6 +17,9 @@ describe('/students', () => { //describe可以嵌套 => 用来整理测试用例
   beforeAll(() => { //在所有测试跑之前。和beforeEach不同，All只调用一次即可，顺序在beforeEach前
     connectToDB(); //连接api server和mongodb server。connectionToDB()没有做返回，所有不用async等待
   });
+  afterAll(async () => {
+    await disconnectDB(); //异步操作，需要等待断开
+  })
   beforeEach(async () => { //在每个测试跑之前
     await Student.deleteMany({}); //清空数据库
   });
@@ -68,12 +72,30 @@ describe('/students', () => { //describe可以嵌套 => 用来整理测试用例
       expect(student.lastName).toBe(validStudent.lastName);
     });
 
-    //添加失败
+    //POST失败的测试用例
     it('should return 400 if email is missing', async () => {
       const student = { firstName: 'aaa', lastName: 'bbb' };
+      const res = await createStudent(student); //不合规的body也能传给createStudent，体现了body作为函数参数的好处
+      expect(res.statusCode).toBe(400);
+    });
+    //对于firstName，lastName，email format等类似的input问题，测试逻辑一样 => jest的高级语法:it.each``
+    //``里是一个表，表的每一行是独立测试，表的参数可动态更改
+    //写法类似markdown language，有field和value column
+    it.each`
+      field | value 
+      ${'firstName'} | ${undefined}
+      ${'lastName'} | ${undefined}
+      ${'firstName'} | ${'a'}
+      ${'email'} | ${'@'}
+      ${'email'} | ${'a@'}
+      ${'email'} | ${'a@b'}
+      ${'email'} | ${'a@b.c'}
+    `('should return 400 when $field is $value', async ({field, value}) => { //将field和value传给测试用例
+      const student = { ...validStudent }; //{...}是拷贝，这样就不会修改validStudent
+      student[field] = value;
       const res = await createStudent(student);
       expect(res.statusCode).toBe(400);
-    })
-  })
-})
+    });
+  });
+});
 

@@ -4,15 +4,20 @@ const bcrypt = require('bcrypt');
 const schema = new Schema({
   username: {
     type: String,
-    require: true,
+    required: true,
     trim: true,
     minlength: 2
   },
   password: {
     type: String,
-    require: true,
+    required: true,
     trim: true
   }
+  //权限信息一般会存储在schema中，譬如roles。有这个field后，
+  //当做auth.js的generateToken({ id: user._id, roles: user.roles })时，即把roles写进payload。
+  //当做authGuard.js得到的decoded非空时，req.user = decoded，解析出来的payload会赋给req.user，即有了roles。
+  //之后，可以加后续的authGuard(譬如teacherGuard，studentGuard)。譬如在routes/students.js的delete路径上，加teacherGuard
+  //这样，就只有teacher能delete student。不是teacher，返回403。
 });
 //mongoose可自定义函数
 //static method -> 作用于Model，Model.functionName调用
