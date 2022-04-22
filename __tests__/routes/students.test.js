@@ -7,9 +7,12 @@ const supertest = require('supertest'); //用于测试每条endpoint
 const app = require('../../src/app');
 const { connectToDB, disconnectDB } = require('../../src/utils/db');
 const Student = require('../../src/models/student');
-const { disconnect } = require('mongoose');
+const { generateToken } = require('../../src/utils/jwt');
 
 const request = supertest(app); //把api server传给supertest，生成一个client
+
+const TOKEN = generateToken({ id: 'fake_id'}); //传入payload
+  //目前还没涉及检测id是否有效，所以这个id内容随便写，保证生成了一个token即可
 
 describe('/students', () => { //describe可以嵌套 => 用来整理测试用例
                               //里层做的是/students路径的测试
@@ -35,7 +38,9 @@ describe('/students', () => { //describe可以嵌套 => 用来整理测试用例
 
     const createStudent = async (body) => { //POST里提取重复代码，用函数的方式调用。
                                             //body以参数形式传来，好处：合规和不合规的body内容都能调用这个函数
-      return request.post('/api/students').send(body); //因为是异步，所以要async
+      return request.post('/api/students').send(body).set('Authorization', `Bearer ${TOKEN}`); 
+                                            //.send()因为是异步，所以要async
+                                            //.set()用来添加header和value
     }
 
     //it关键字<=>test关键字，it should...是一个句子，所以偏向于使用it，

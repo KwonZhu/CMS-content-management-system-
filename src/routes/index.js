@@ -9,9 +9,9 @@ const authGuard = require('../middleware/authGuard');
 
 const router = express.Router();
 
-router.use('/students', studentRoute);
+router.use('/students', authGuard,studentRoute); //在路径上加authGuard
 // router.use('/teachers', teacherRoute);
-router.use('/courses', courseRoute);
+router.use('/courses', courseRoute); //在路径上加authGuard
 router.use('/users', userRoute);
 router.use('/auth', authRoute);
 

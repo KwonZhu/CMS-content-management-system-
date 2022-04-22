@@ -1,5 +1,5 @@
 const { Schema, model } = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt'); //encrypt and validate password
 
 const schema = new Schema({
   username: {
@@ -13,6 +13,7 @@ const schema = new Schema({
     required: true,
     trim: true
   }
+  //roles field
   //权限信息一般会存储在schema中，譬如roles。有这个field后，
   //当做auth.js的generateToken({ id: user._id, roles: user.roles })时，即把roles写进payload。
   //当做authGuard.js得到的decoded非空时，req.user = decoded，解析出来的payload会赋给req.user，即有了roles。
