@@ -3,7 +3,7 @@ const Course = require('../models/course');
 
 async function getAllStudents(req, res) {
   const students = await Student.find().exec();
-  return res.json(students); 
+  return res.json(students);
 }
 
 async function getStudentById(req, res) {
