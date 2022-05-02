@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken');
 
+const SECRET = process.env.JWT_KEY || 'secret';//因为做CI pipeline时，不上传.env，所以要给JWT_KEY默认值
+
 function generateToken(payload) { //签发时payload会变，所以把payload传进来
   //secret不会明文存在代码中，而是存在.env里
-  const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '1d' });
+  //const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: '1d' });
+  const token = jwt.sign(payload, SECRET, { expiresIn: '1d' });
   return token;
 }
 

@@ -8,11 +8,11 @@ exports.connectToDB = () => { //直接把整个尝试连接的过程封装起来
   // DB_DATABASE=CMS
   // const connectionString = process.env.CONNECTION_STRING; ////mongodb://localhost:27017/dbName(CMS)
   //为了在测试时能新建一个测试专用db，所以修改.env的CONNECTION_STRING和上一行的connectionString
-  let database = process.env.DB_DATABASE;
+  let database = process.env.DB_DATABASE || 'CMS'; //当做CI pipeline时，不上传.env，所以要给DB_DATABASE默认值
   if (process.env.NODE_ENV === 'test') { //NODE_ENV为test的设置由jest自动实现，即当运行npm run test/test:watch时自动切换
     database += '_test'; //给测试用的db命名
   }
-  const connectionString = process.env.CONNECTION_STRING + database;
+  const connectionString = (process.env.CONNECTION_STRING || 'mongodb://localhost:27017/') + database; ////当做CI pipeline时，不上传.env，所以要给CONNECTION_STRING默认值
 
   //监听连接状态: 1. 连接成功；2. 断开连接；3. 错误
   const db = mongoose.connection; //连接成功
