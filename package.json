@@ -40,8 +40,15 @@
     "supertest": "^6.2.2"
   },
   "jest": {
+    "roots": [
+      "<rootDir>"
+    ],
     "modulePaths": [
-      "<rootDir>/src"
-    ]
+      "<rootDir>"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+  ]
   }
 }
