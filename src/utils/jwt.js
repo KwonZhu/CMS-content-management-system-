@@ -16,7 +16,7 @@ function validateToken(token) {
   //和在jwt learning验证不同，真正的验证需要用try-catch
   //来抓取TokenExpiredError, JSONWebTokenError: invalid signature(=> secret不一致), SyntaxError等问题
   try {
-    decoded = jwt.verify(token, process.env.JWT_KEY);  
+    decoded = jwt.verify(token, SECRET);  
   } catch (e) {
     return null;//返回null/undefined(没有信息的结果)，即验证不通过，返回401
     //还可以把Error信息原封不动返回给请求方
