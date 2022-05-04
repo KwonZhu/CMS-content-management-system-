@@ -11,7 +11,7 @@ const { generateToken } = require('../../src/utils/jwt');
 
 const request = supertest(app); //把api server传给supertest，生成一个client
 
-const TOKEN = generateToken({ id: 'fake_id'}); //传入payload
+const TOKEN = generateToken({ id: 'fake_id' }); //传入payload
   //目前还没涉及检测id是否有效，所以这个id内容随便写，保证生成了一个token即可
 
 describe('/students', () => { //describe可以嵌套 => 用来整理测试用例

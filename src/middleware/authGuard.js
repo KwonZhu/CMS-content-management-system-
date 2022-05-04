@@ -1,5 +1,5 @@
 //用来验证token
-const { validateToken } = require("../utils/jwt")
+const { validateToken } = require('../utils/jwt');
 
 module.exports = (req, res, next) => {
   //Header: KEY(Authorization), VALUE(Bearer+space+token)
@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
   }
   //前面2个fail fast通过，证明这个authHeader才值得去检测token
   //validateToken被调用，有2种结果。成功，返回decoded出来的object；失败，返回空
-  const decoded = validateToken(contentArray[1]); 
+  const decoded = validateToken(contentArray[1]);
   if (!decoded) {
     return res.sendStatus(401);
   }
@@ -23,4 +23,4 @@ module.exports = (req, res, next) => {
                   不需要又decode一次token，或者把body/params的id放到db里查询从而知道role是什么
   */
   next(); //handover to next controller
-}
+};
